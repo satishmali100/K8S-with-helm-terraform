@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PresistantVolumeClaim
+metadata: 
+  name: my-app-pvc
+  namespace: default
+spec: 
+  accessModes: 
+  - ReadWriteOnce
+  storageClassName: azure-managed-disk
+  resources:
+    requests:
+      storage: 5Gi
