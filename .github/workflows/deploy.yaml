@@ -39,6 +39,7 @@ jobs:
           pwd
           ls -R
 
+      # Terraform Steps with tfvars file
       - name: Terraform Init
         working-directory: Environments/non-prod
         run: terraform init
@@ -49,17 +50,18 @@ jobs:
 
       - name: Terraform Plan
         working-directory: Environments/non-prod
-        run: terraform plan -input=false -no-color
+        run: terraform plan -var-file="terraform.tfvars" -input=false -no-color
 
       - name: Terraform Apply
         working-directory: Environments/non-prod
-        run: terraform apply -input=false -auto-approve -no-color
+        run: terraform apply -var-file="terraform.tfvars" -input=false -auto-approve -no-color
 
       - name: Get AKS Credentials
         run: |
           az aks get-credentials \
             --resource-group satish-rg \
             --name aks-cluster \
+            --admin \
             --overwrite-existing
 
       - name: Verify Cluster
