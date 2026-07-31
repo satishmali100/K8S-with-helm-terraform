@@ -19,7 +19,7 @@ jobs:
       
       - name: Login to Azure (Direct CLI)
         run: |
-            az login --service-principal -u "YOUR_CLIENT_ID" -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant "YOUR_TENANT_ID"
+          az login --service-principal -u "YOUR_CLIENT_ID" -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant "YOUR_TENANT_ID"
 
       - name: Terraform Init & Apply
         run: |
