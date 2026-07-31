@@ -2,45 +2,71 @@ name: Deploy AKS Infra and Apps
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+
+    defaults:
+      run:
+        shell: bash
+
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.5.0
-      
+
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true    # <--- YEH LINE ADD KARO
 
-      - name: Terraform Init & Apply
+      - name: Verify Working Directory
         run: |
-          cd Environments/non-prod
-          terraform init
-          terraform apply -auto-approve
+          pwd
+          ls -R
+
+      - name: Terraform Init
+        working-directory: Environments/non-prod
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: Environments/non-prod
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: Environments/non-prod
+        run: terraform plan -input=false -no-color
+
+      - name: Terraform Apply
+        working-directory: Environments/non-prod
+        run: terraform apply -input=false -auto-approve -no-color
 
       - name: Get AKS Credentials
         run: |
-          az aks get-credentials --resource-group "satish-rg" --name "aks-cluster" --admin
+          az aks get-credentials \
+            --resource-group satish-rg \
+            --name aks-cluster \
+            --overwrite-existing
+
+      - name: Verify Cluster
+        run: |
+          kubectl get nodes
+          kubectl get ns
 
       - name: Deploy Kubernetes Manifests
         run: |
           kubectl apply -f kubernetes/
-
-          
-      
