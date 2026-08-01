@@ -39,7 +39,42 @@ jobs:
           pwd
           ls -R
 
-      # Terraform Steps with tfvars file
+      ####################################################
+      # Bootstrap Backend (Only if backend doesn't exist)
+      ####################################################
+
+      - name: Bootstrap Terraform Backend
+        run: |
+          RG="tfstate-rg"
+          STORAGE="satishtfstate001"      # CHANGE THIS (globally unique)
+          CONTAINER="tfstate"
+          LOCATION="centralindia"
+
+          az group create \
+            --name $RG \
+            --location $LOCATION
+
+          if ! az storage account show \
+            --name $STORAGE \
+            --resource-group $RG >/dev/null 2>&1; then
+
+            az storage account create \
+              --name $STORAGE \
+              --resource-group $RG \
+              --location $LOCATION \
+              --sku Standard_LRS \
+              --kind StorageV2
+          fi
+
+          az storage container create \
+            --name $CONTAINER \
+            --account-name $STORAGE \
+            --auth-mode login
+
+      ####################################################
+      # Terraform
+      ####################################################
+
       - name: Terraform Init
         working-directory: Environments/non-prod
         env:
@@ -47,7 +82,7 @@ jobs:
           ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        run: terraform init
+        run: terraform init -reconfigure
 
       - name: Terraform Validate
         working-directory: Environments/non-prod
@@ -60,6 +95,10 @@ jobs:
       - name: Terraform Apply
         working-directory: Environments/non-prod
         run: terraform apply -var-file="terraform.tfvars" -input=false -auto-approve -no-color
+
+      ####################################################
+      # AKS
+      ####################################################
 
       - name: Get AKS Credentials
         run: |
