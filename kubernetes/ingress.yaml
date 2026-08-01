@@ -19,3 +19,5 @@ spec:
             name: my-app-svc
             port:
               number: 80
+
+              #sms#
