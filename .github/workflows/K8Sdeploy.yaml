@@ -18,7 +18,7 @@ env:
 
   LOCATION: centralindia
   TFSTATE_RG: tfstate-rg
-  TFSTATE_STORAGE: satishtfstate001    # <-- CHANGE THIS (globally unique)
+  TFSTATE_STORAGE: satishtfstate001    # Keep this unique
   TFSTATE_CONTAINER: tfstate
 
 jobs:
@@ -118,6 +118,12 @@ jobs:
           kubectl get nodes
           kubectl get ns
 
-      - name: Deploy Kubernetes Manifests
+      #################################################
+      # Helm Deploy
+      #################################################
+
+      - name: Deploy Helm Chart
         run: |
-          kubectl apply -f kubernetes/
+          helm upgrade --install myapp ./helm/my-app-chart \
+            --namespace default \
+            --create-namespace
