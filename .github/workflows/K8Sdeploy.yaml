@@ -127,3 +127,6 @@ jobs:
           helm upgrade --install myapp ./helm/my-app-chart \
             --namespace default \
             --create-namespace
+            --force
+
+            
