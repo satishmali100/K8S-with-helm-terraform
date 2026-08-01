@@ -40,3 +40,14 @@ k8s = {
     }
 
 }   
+
+storage = {
+    storage1 = {
+    name                     = "satishstoragesss"
+    resource_group_name      = "satish-rg"
+    location                 = "centralindia"
+    account_tier             = "Standard"
+    account_replication_type = "LRS"
+    }
+}
+   

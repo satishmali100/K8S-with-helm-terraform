@@ -20,3 +20,9 @@ module "k8s" {
     source = "../../modules/4_azurerm_kubernetes_cluster"
   k8s = var.k8s
 }
+
+module "storage" {
+    depends_on = [module.rg]
+    source = "../../modules/5_azurerm_storage_account"
+  storage = var.storage
+}
